@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yahoo知恵袋 順位チェッカー</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .api-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border-left: 4px solid #007bff;
+        }
+        
+        .api-section h3 {
+            color: #007bff;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+        
+        .api-limits {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        
+        .api-limits h4 {
+            color: #856404;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .limits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .limit-item {
+            background: white;
+            padding: 10px;
+            border-radius: 6px;
+            border-left: 3px solid #ffc107;
+        }
+        
+        .limit-label {
+            font-weight: 600;
+            color: #495057;
+            font-size: 0.9rem;
+        }
+        
+        .limit-value {
+            font-size: 1.1rem;
+            color: #856404;
+            margin-top: 2px;
+        }
+        
+        .quota-tracker {
+            background: #e3f2fd;
+            border: 1px solid #90caf9;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        
+        .quota-tracker h4 {
+            color: #1565c0;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .quota-bar {
+            background: #e0e0e0;
+            height: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .quota-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4caf50, #ff9800, #f44336);
+            width: 0%;
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .input-group label {
+            font-weight: 600;
+            color: #495057;
+            min-width: 120px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .input-group input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+            min-width: 300px;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+        
+        .keywords-section {
+            margin-bottom: 30px;
+        }
+        
+        .keywords-section h3 {
+            color: #28a745;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+        
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 150px;
+            transition: border-color 0.3s;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #28a745;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+        }
+        
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,123,255,0.4);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #28a745, #1e7e34);
+            color: white;
+        }
+        
+        .btn-success:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40,167,69,0.4);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d, #545b62);
+            color: white;
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, #ffc107, #e0a800);
+            color: #212529;
+        }
+        
+        .btn-warning:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255,193,7,0.4);
+        }
+        
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e9ecef;
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #007bff, #28a745);
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        .results {
+            margin-top: 30px;
+        }
+        
+        .results h3 {
+            color: #6f42c1;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+        
+        .result-item {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+        }
+        
+        .result-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .keyword {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: #495057;
+        }
+        
+        .rank-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .rank-target {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .rank-out {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .result-url {
+            color: #007bff;
+            text-decoration: none;
+            word-break: break-all;
+            font-size: 14px;
+        }
+        
+        .result-url:hover {
+            text-decoration: underline;
+        }
+        
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-weight: 500;
+        }
+        
+        .status-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border-left: 4px solid #17a2b8;
+        }
+        
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #007bff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            opacity: 0.9;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 10px;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .input-group {
+                flex-direction: column;
+            }
+            
+            .input-group input {
+                min-width: auto;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            button {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 Yahoo知恵袋 順位チェッカー</h1>
+            <p>検索キーワードでYahoo知恵袋が10位以内にあるかチェックします</p>
+        </div>
+        
+        <div class="content">
+            <div class="api-section">
+                <h3>📡 Google Custom Search API設定</h3>
+                <div class="input-group">
+                    <label for="apiKey">APIキー:</label>
+                    <input type="text" id="apiKey" placeholder="Google Custom Search API Key を入力">
+                </div>
+                <div class="input-group">
+                    <label for="searchEngineId">検索エンジンID:</label>
+                    <input type="text" id="searchEngineId" placeholder="Custom Search Engine ID (cx) を入力">
+                </div>
+                
+                <div class="api-limits">
+                    <h4>⚠️ API利用制限</h4>
+                    <div class="limits-grid">
+                        <div class="limit-item">
+                            <div class="limit-label">無料枠</div>
+                            <div class="limit-value">100クエリ/日</div>
+                        </div>
+                        <div class="limit-item">
+                            <div class="limit-label">有料料金</div>
+                            <div class="limit-value">$5/1000クエリ</div>
+                        </div>
+                        <div class="limit-item">
+                            <div class="limit-label">1日最大</div>
+                            <div class="limit-value">10,000クエリ</div>
+                        </div>
+                        <div class="limit-item">
+                            <div class="limit-label">リセット時刻</div>
+                            <div class="limit-value">17:00 JST</div>
+                        </div>
+                    </div>
+                    <p style="margin: 10px 0 0 0; font-size: 0.9rem; color: #856404;">
+                        💡 <strong>重要:</strong> エラーや重複検索もクエリとしてカウントされます。1キーワード = 1クエリ消費
+                    </p>
+                </div>
+                
+                <div class="quota-tracker" id="quotaTracker" style="display: none;">
+                    <h4>📊 本日の使用状況</h4>
+                    <div class="quota-bar">
+                        <div class="quota-fill" id="quotaFill">0/100</div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 0.9rem; color: #1565c0;">
+                        <span id="quotaUsed">使用済み: 0</span>
+                        <span id="quotaRemaining">残り: 100</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="keywords-section">
+                <h3>🎯 チェックするキーワード</h3>
+                <textarea id="keywords" placeholder="キーワードを1行に1つずつ入力してください&#10;例:&#10;プログラミング 初心者&#10;JavaScript 学習&#10;Python 入門"></textarea>
+            </div>
+            
+            <div class="button-group">
+                <button class="btn-primary" id="checkBtn">
+                    <span id="checkBtnText">🚀 チェック開始</span>
+                    <div class="loading" id="loadingSpinner" style="display: none;"></div>
+                </button>
+                <button class="btn-success" id="exportBtn" style="display: none;">
+                    📊 CSV出力
+                </button>
+                <button class="btn-secondary" id="clearBtn">
+                    🗑️ クリア
+                </button>
+                <button class="btn-warning" id="logoutBtn" style="display: none;">
+                    🔒 ログアウト
+                </button>
+            </div>
+            
+            <div class="progress-bar" id="progressBar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            
+            <div id="status"></div>
+            
+            <div id="statsContainer" style="display: none;">
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalChecked">0</div>
+                        <div class="stat-label">チェック済み</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="targetKeywords">0</div>
+                        <div class="stat-label">狙い目キーワード</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="successRate">0%</div>
+                        <div class="stat-label">成功率</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="results" id="results" style="display: none;">
+                <h3>📊 チェック結果</h3>
+                <div id="resultsList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class ChiebukuroRankChecker {
+            constructor() {
+                this.results = [];
+                this.isChecking = false;
+                this.quotaUsed = 0;
+                this.quotaLimit = 100;
+                this.initializeElements();
+                this.bindEvents();
+                this.loadQuotaFromStorage();
+            }
+            
+            initializeElements() {
+                this.apiKeyInput = document.getElementById('apiKey');
+                this.searchEngineIdInput = document.getElementById('searchEngineId');
+                this.keywordsTextarea = document.getElementById('keywords');
+                this.checkBtn = document.getElementById('checkBtn');
+                this.exportBtn = document.getElementById('exportBtn');
+                this.clearBtn = document.getElementById('clearBtn');
+                this.logoutBtn = document.getElementById('logoutBtn');
+                this.progressBar = document.getElementById('progressBar');
+                this.progressFill = document.getElementById('progressFill');
+                this.status = document.getElementById('status');
+                this.results = document.getElementById('results');
+                this.resultsList = document.getElementById('resultsList');
+                this.loadingSpinner = document.getElementById('loadingSpinner');
+                this.checkBtnText = document.getElementById('checkBtnText');
+                this.statsContainer = document.getElementById('statsContainer');
+                this.totalChecked = document.getElementById('totalChecked');
+                this.targetKeywords = document.getElementById('targetKeywords');
+                this.successRate = document.getElementById('successRate');
+                this.quotaTracker = document.getElementById('quotaTracker');
+                this.quotaFill = document.getElementById('quotaFill');
+                this.quotaUsed = document.getElementById('quotaUsed');
+                this.quotaRemaining = document.getElementById('quotaRemaining');
+            }
+            
+            bindEvents() {
+                this.checkBtn.addEventListener('click', () => this.startCheck());
+                this.exportBtn.addEventListener('click', () => this.exportToCSV());
+                this.clearBtn.addEventListener('click', () => this.clearResults());
+                this.logoutBtn.addEventListener('click', () => this.logout());
+                
+                // Check if quota should reset (new day in PST)
+                this.checkQuotaReset();
+                
+                // Update quota display every minute
+                setInterval(() => this.checkQuotaReset(), 60000);
+            }
+            
+            showStatus(message, type = 'info') {
+                this.status.innerHTML = `<div class="status status-${type}">${message}</div>`;
+            }
+            
+            validateInputs() {
+                const apiKey = this.apiKeyInput.value.trim();
+                const searchEngineId = this.searchEngineIdInput.value.trim();
+                const keywords = this.keywordsTextarea.value.trim();
+                
+                if (!apiKey) {
+                    this.showStatus('❌ APIキーを入力してください', 'error');
+                    return false;
+                }
+                
+                if (!searchEngineId) {
+                    this.showStatus('❌ 検索エンジンIDを入力してください', 'error');
+                    return false;
+                }
+                
+                if (!keywords) {
+                    this.showStatus('❌ チェックするキーワードを入力してください', 'error');
+                    return false;
+                }
+                
+                return true;
+            }
+            
+            async startCheck() {
+                if (this.isChecking) return;
+                
+                if (!this.validateInputs()) return;
+                
+                const keywords = this.keywordsTextarea.value.trim().split('\n').filter(k => k.trim());
+                
+                // Check quota before starting
+                if (this.quotaUsed + keywords.length > this.quotaLimit) {
+                    this.showStatus(`❌ クエリ制限を超過します。必要: ${keywords.length}クエリ, 残り: ${this.quotaLimit - this.quotaUsed}クエリ`, 'error');
+                    return;
+                }
+                
+                this.isChecking = true;
+                this.results = [];
+                this.updateUI(true);
+                
+                const apiKey = this.apiKeyInput.value.trim();
+                const searchEngineId = this.searchEngineIdInput.value.trim();
+                
+                this.showStatus(`🔍 ${keywords.length}個のキーワードをチェック中... (${this.quotaUsed + keywords.length}/${this.quotaLimit}クエリ使用予定)`);
+                this.progressBar.style.display = 'block';
+                
+                for (let i = 0; i < keywords.length; i++) {
+                    const keyword = keywords[i].trim();
+                    if (!keyword) continue;
+                    
+                    try {
+                        const result = await this.checkKeyword(keyword, apiKey, searchEngineId);
+                        this.results.push(result);
+                        
+                        // Update quota count
+                        this.quotaUsed++;
+                        this.updateQuotaDisplay();
+                        this.saveQuotaToStorage();
+                        
+                        this.updateProgress((i + 1) / keywords.length * 100);
+                        this.updateStats();
+                        this.displayResults();
+                        
+                        // Rate limiting - wait 100ms between requests
+                        if (i < keywords.length - 1) {
+                            await this.sleep(100);
+                        }
+                        
+                    } catch (error) {
+                        console.error(`Error checking keyword "${keyword}":`, error);
+                        
+                        // Even errors count towards quota
+                        this.quotaUsed++;
+                        this.updateQuotaDisplay();
+                        this.saveQuotaToStorage();
+                        
+                        this.results.push({
+                            keyword,
+                            rank: null,
+                            isTarget: false,
+                            url: null,
+                            error: error.message
+                        });
+                    }
+                }
+                
+                this.isChecking = false;
+                this.updateUI(false);
+                this.showStatus(`✅ チェック完了！ ${this.results.length}個のキーワードを処理しました`);
+                
+                // Show logout button after check completion
+                this.logoutBtn.style.display = 'inline-flex';
+                
+                // Auto-logout after 30 seconds for security
+                setTimeout(() => {
+                    if (this.apiKeyInput.value.trim() || this.searchEngineIdInput.value.trim()) {
+                        this.showStatus('🔒 セキュリティのため30秒後に自動ログアウトしました', 'info');
+                        this.logout();
+                    }
+                }, 30000);
+            }
+            
+            async checkKeyword(keyword, apiKey, searchEngineId) {
+                const url = `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${searchEngineId}&q=${encodeURIComponent(keyword)}&num=10`;
+                
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`API Error: ${response.status} ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.error) {
+                    throw new Error(data.error.message);
+                }
+                
+                const items = data.items || [];
+                
+                for (let i = 0; i < items.length; i++) {
+                    const item = items[i];
+                    if (item.link && item.link.includes('detail.chiebukuro.yahoo.co.jp')) {
+                        return {
+                            keyword,
+                            rank: i + 1,
+                            isTarget: true,
+                            url: item.link,
+                            title: item.title
+                        };
+                    }
+                }
+                
+                return {
+                    keyword,
+                    rank: null,
+                    isTarget: false,
+                    url: null,
+                    title: null
+                };
+            }
+            
+            updateProgress(percentage) {
+                this.progressFill.style.width = `${percentage}%`;
+            }
+            
+            updateStats() {
+                const total = this.results.length;
+                const targets = this.results.filter(r => r.isTarget).length;
+                const rate = total > 0 ? Math.round((targets / total) * 100) : 0;
+                
+                this.totalChecked.textContent = total;
+                this.targetKeywords.textContent = targets;
+                this.successRate.textContent = `${rate}%`;
+                
+                this.statsContainer.style.display = 'block';
+            }
+            
+            displayResults() {
+                this.results.style.display = 'block';
+                this.exportBtn.style.display = 'inline-flex';
+                
+                this.resultsList.innerHTML = this.results.map(result => {
+                    const rankText = result.rank ? `${result.rank}位` : '圏外';
+                    const badgeClass = result.isTarget ? 'rank-target' : 'rank-out';
+                    const statusText = result.isTarget ? '◎ 狙い目' : '圏外';
+                    
+                    return `
+                        <div class="result-item">
+                            <div class="result-header">
+                                <span class="keyword">${this.escapeHtml(result.keyword)}</span>
+                                <span class="rank-badge ${badgeClass}">${rankText} - ${statusText}</span>
+                            </div>
+                            ${result.url ? `<a href="${result.url}" target="_blank" class="result-url">${result.url}</a>` : ''}
+                            ${result.error ? `<div style="color: #dc3545; font-size: 14px;">エラー: ${result.error}</div>` : ''}
+                        </div>
+                    `;
+                }).join('');
+            }
+            
+            updateUI(isChecking) {
+                this.checkBtn.disabled = isChecking;
+                this.loadingSpinner.style.display = isChecking ? 'inline-block' : 'none';
+                this.checkBtnText.textContent = isChecking ? 'チェック中...' : '🚀 チェック開始';
+                
+                // Disable API inputs during checking
+                this.apiKeyInput.disabled = isChecking;
+                this.searchEngineIdInput.disabled = isChecking;
+                
+                if (!isChecking) {
+                    this.progressBar.style.display = 'none';
+                    this.progressFill.style.width = '0%';
+                }
+            }
+            
+            exportToCSV() {
+                if (this.results.length === 0) {
+                    this.showStatus('❌ 出力するデータがありません', 'error');
+                    return;
+                }
+                
+                const headers = ['キーワード', '順位', 'ステータス', 'URL'];
+                const csvContent = [
+                    headers.join(','),
+                    ...this.results.map(result => [
+                        `"${result.keyword}"`,
+                        result.rank || '圏外',
+                        result.isTarget ? '◎ 狙い目' : '圏外',
+                        result.url || ''
+                    ].join(','))
+                ].join('\n');
+                
+                const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', `chiebukuro_rank_${new Date().toISOString().slice(0, 10)}.csv`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                this.showStatus('📊 CSVファイルをダウンロードしました');
+            }
+            
+            clearResults() {
+                this.results = [];
+                this.resultsList.innerHTML = '';
+                this.results.style.display = 'none';
+                this.exportBtn.style.display = 'none';
+                this.status.innerHTML = '';
+                this.statsContainer.style.display = 'none';
+                this.progressBar.style.display = 'none';
+                this.showStatus('🗑️ 結果をクリアしました');
+            }
+            
+            logout() {
+                // Clear API credentials
+                this.apiKeyInput.value = '';
+                this.searchEngineIdInput.value = '';
+                
+                // Hide logout button
+                this.logoutBtn.style.display = 'none';
+                
+                // Clear results and reset UI
+                this.clearResults();
+                
+                // Show logout confirmation
+                this.showStatus('🔒 ログアウトしました。APIキーと検索エンジンIDがクリアされました。', 'info');
+                
+                // Optional: Clear from browser's form autocomplete
+                if (this.apiKeyInput.form) {
+                    this.apiKeyInput.form.reset();
+                }
+            }
+            
+            escapeHtml(text) {
+                const map = {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#039;'
+                };
+                return text.replace(/[&<>"']/g, m => map[m]);
+            }
+            
+            sleep(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+            
+            loadQuotaFromStorage() {
+                const today = this.getPSTDate();
+                const stored = localStorage.getItem('chiebukuro_quota');
+                
+                if (stored) {
+                    const data = JSON.parse(stored);
+                    if (data.date === today) {
+                        this.quotaUsed = data.used || 0;
+                    } else {
+                        // New day, reset quota
+                        this.quotaUsed = 0;
+                        this.saveQuotaToStorage();
+                    }
+                } else {
+                    this.quotaUsed = 0;
+                }
+                
+                this.updateQuotaDisplay();
+            }
+            
+            saveQuotaToStorage() {
+                const today = this.getPSTDate();
+                const data = {
+                    date: today,
+                    used: this.quotaUsed
+                };
+                localStorage.setItem('chiebukuro_quota', JSON.stringify(data));
+            }
+            
+            getPSTDate() {
+                // Get current date in PST (UTC-8)
+                const now = new Date();
+                const pstOffset = -8 * 60; // PST is UTC-8
+                const pst = new Date(now.getTime() + (pstOffset * 60 * 1000));
+                return pst.toISOString().split('T')[0];
+            }
+            
+            checkQuotaReset() {
+                const today = this.getPSTDate();
+                const stored = localStorage.getItem('chiebukuro_quota');
+                
+                if (stored) {
+                    const data = JSON.parse(stored);
+                    if (data.date !== today) {
+                        // New day, reset quota
+                        this.quotaUsed = 0;
+                        this.saveQuotaToStorage();
+                        this.updateQuotaDisplay();
+                        this.showStatus('🔄 新しい日になりました。クエリ制限がリセットされました。');
+                    }
+                }
+            }
+            
+            updateQuotaDisplay() {
+                if (this.quotaUsed > 0) {
+                    this.quotaTracker.style.display = 'block';
+                }
+                
+                const percentage = (this.quotaUsed / this.quotaLimit) * 100;
+                this.quotaFill.style.width = `${Math.min(percentage, 100)}%`;
+                this.quotaFill.textContent = `${this.quotaUsed}/${this.quotaLimit}`;
+                
+                this.quotaUsed.textContent = `使用済み: ${this.quotaUsed}`;
+                this.quotaRemaining.textContent = `残り: ${this.quotaLimit - this.quotaUsed}`;
+                
+                // Change color based on usage
+                if (percentage >= 90) {
+                    this.quotaFill.style.background = '#f44336';
+                } else if (percentage >= 70) {
+                    this.quotaFill.style.background = '#ff9800';
+                } else {
+                    this.quotaFill.style.background = '#4caf50';
+                }
+            }
+        }
+        
+        // Initialize the app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            new ChiebukuroRankChecker();
+        });
+    </script>
+</body>
+</html>
