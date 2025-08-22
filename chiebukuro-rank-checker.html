@@ -2,6 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Yahoo知恵袋 順位チェッカー</title>
     <style>
@@ -675,7 +676,7 @@
                 
                 this.isChecking = false;
                 this.updateUI(false);
-                this.showStatus(`✅ チェック完了！ ${this.results.length}個のキーワードを処理しました`);
+                this.showStatus(`✓ チェック完了！ ${this.results.length}個のキーワードを処理しました`);
                 
                 // Show logout button after check completion
                 this.logoutBtn.style.display = 'inline-flex';
