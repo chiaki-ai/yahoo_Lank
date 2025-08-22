@@ -557,7 +557,7 @@
                 this.progressBar = document.getElementById('progressBar');
                 this.progressFill = document.getElementById('progressFill');
                 this.status = document.getElementById('status');
-                this.results = document.getElementById('results');
+                this.resultsContainer = document.getElementById('results');
                 this.resultsList = document.getElementById('resultsList');
                 this.loadingSpinner = document.getElementById('loadingSpinner');
                 this.checkBtnText = document.getElementById('checkBtnText');
@@ -691,11 +691,24 @@
             }
             
             async checkKeyword(keyword, apiKey, searchEngineId) {
-                const url = `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${searchEngineId}&q=${encodeURIComponent(keyword)}&num=10`;
+                const params = new URLSearchParams({
+                    q: keyword,
+                    cx: searchEngineId,
+                    key: apiKey,
+                    num: '10',
+                    start: '1',
+                    hl: 'ja',
+                    gl: 'JP',
+                    safe: 'off',
+                    fields: 'items(title,link,snippet),searchInformation(totalResults)'
+                });
+                
+                const url = `https://www.googleapis.com/customsearch/v1?${params}`;
                 
                 const response = await fetch(url);
                 if (!response.ok) {
-                    throw new Error(`API Error: ${response.status} ${response.statusText}`);
+                    const err = await response.json().catch(() => ({}));
+                    throw new Error(`CSE error ${response.status}: ${JSON.stringify(err)}`);
                 }
                 
                 const data = await response.json();
@@ -745,7 +758,7 @@
             }
             
             displayResults() {
-                this.results.style.display = 'block';
+                this.resultsContainer.style.display = 'block';
                 this.exportBtn.style.display = 'inline-flex';
                 
                 this.resultsList.innerHTML = this.results.map(result => {
@@ -814,7 +827,7 @@
             clearResults() {
                 this.results = [];
                 this.resultsList.innerHTML = '';
-                this.results.style.display = 'none';
+                this.resultsContainer.style.display = 'none';
                 this.exportBtn.style.display = 'none';
                 this.status.innerHTML = '';
                 this.statsContainer.style.display = 'none';
