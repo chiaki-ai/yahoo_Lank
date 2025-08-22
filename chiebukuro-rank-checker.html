@@ -651,6 +651,8 @@
                         this.updateStats();
                         this.displayResults();
                         
+                        console.log('Result added:', result);
+                        
                         // Rate limiting - wait 100ms between requests
                         if (i < keywords.length - 1) {
                             await this.sleep(100);
@@ -758,6 +760,7 @@
             }
             
             displayResults() {
+                console.log('Displaying results:', this.results);
                 this.resultsContainer.style.display = 'block';
                 this.exportBtn.style.display = 'inline-flex';
                 
