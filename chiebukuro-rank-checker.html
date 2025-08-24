@@ -332,6 +332,106 @@
             background: #f8d7da;
             color: #721c24;
         }
+
+        /* Table-style results layout */
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .table-header {
+            display: flex;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+            padding: 15px 0;
+        }
+
+        .table-row {
+            display: flex;
+            border-bottom: 1px solid #e9ecef;
+            transition: background-color 0.2s;
+        }
+
+        .table-row:hover {
+            background-color: #f8f9fa;
+        }
+
+        .col-keyword {
+            flex: 2;
+            padding: 15px;
+            font-weight: 500;
+            color: #495057;
+        }
+
+        .col-platform {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .table-header .col-keyword,
+        .table-header .col-platform {
+            color: white;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Platform-specific rank badges */
+        .rank-badge.chiebukuro {
+            background: #ff6b35;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            min-width: 24px;
+        }
+
+        .rank-badge.twitter {
+            background: #1da1f2;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            min-width: 24px;
+        }
+
+        .rank-badge.instagram {
+            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            min-width: 24px;
+        }
+
+        .rank-badge.facebook {
+            background: #4267b2;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            min-width: 24px;
+        }
+
+        .rank-empty {
+            color: #6c757d;
+            font-size: 18px;
+            opacity: 0.5;
+        }
         
         .result-url {
             color: #007bff;
@@ -730,26 +830,59 @@
                 
                 const items = data.items || [];
                 
+                // Initialize result object with all platforms
+                const result = {
+                    keyword,
+                    platforms: {
+                        chiebukuro: { rank: null, url: null, title: null },
+                        twitter: { rank: null, url: null, title: null },
+                        instagram: { rank: null, url: null, title: null },
+                        facebook: { rank: null, url: null, title: null }
+                    }
+                };
+                
+                // Check each search result for different platforms
                 for (let i = 0; i < items.length; i++) {
                     const item = items[i];
-                    if (item.link && item.link.includes('detail.chiebukuro.yahoo.co.jp')) {
-                        return {
-                            keyword,
-                            rank: i + 1,
-                            isTarget: true,
-                            url: item.link,
-                            title: item.title
-                        };
+                    const rank = i + 1;
+                    
+                    if (item.link) {
+                        // Yahoo知恵袋
+                        if (item.link.includes('detail.chiebukuro.yahoo.co.jp')) {
+                            result.platforms.chiebukuro = {
+                                rank: rank,
+                                url: item.link,
+                                title: item.title
+                            };
+                        }
+                        // X (Twitter)
+                        else if (item.link.includes('twitter.com') || item.link.includes('x.com')) {
+                            result.platforms.twitter = {
+                                rank: rank,
+                                url: item.link,
+                                title: item.title
+                            };
+                        }
+                        // Instagram
+                        else if (item.link.includes('instagram.com')) {
+                            result.platforms.instagram = {
+                                rank: rank,
+                                url: item.link,
+                                title: item.title
+                            };
+                        }
+                        // Facebook
+                        else if (item.link.includes('facebook.com')) {
+                            result.platforms.facebook = {
+                                rank: rank,
+                                url: item.link,
+                                title: item.title
+                            };
+                        }
                     }
                 }
                 
-                return {
-                    keyword,
-                    rank: null,
-                    isTarget: false,
-                    url: null,
-                    title: null
-                };
+                return result;
             }
             
             updateProgress(percentage) {
@@ -758,11 +891,20 @@
             
             updateStats() {
                 const total = this.results.length;
-                const targets = this.results.filter(r => r.isTarget).length;
-                const rate = total > 0 ? Math.round((targets / total) * 100) : 0;
+                let totalPlatformHits = 0;
+                
+                this.results.forEach(result => {
+                    if (result.platforms) {
+                        Object.values(result.platforms).forEach(platform => {
+                            if (platform.rank) totalPlatformHits++;
+                        });
+                    }
+                });
+                
+                const rate = total > 0 ? Math.round((totalPlatformHits / (total * 4)) * 100) : 0;
                 
                 this.totalChecked.textContent = total;
-                this.targetKeywords.textContent = targets;
+                this.targetKeywords.textContent = totalPlatformHits;
                 this.successRate.textContent = `${rate}%`;
                 
                 this.statsContainer.style.display = 'block';
@@ -773,22 +915,69 @@
                 this.resultsContainer.style.display = 'block';
                 this.exportBtn.style.display = 'inline-flex';
                 
-                this.resultsList.innerHTML = this.results.map(result => {
-                    const rankText = result.rank ? `${result.rank}位` : '圏外';
-                    const badgeClass = result.isTarget ? 'rank-target' : 'rank-out';
-                    const statusText = result.isTarget ? '◎ 狙い目' : '圏外';
-                    
-                    return `
-                        <div class="result-item">
-                            <div class="result-header">
-                                <span class="keyword">${this.escapeHtml(result.keyword)}</span>
-                                <span class="rank-badge ${badgeClass}">${rankText} - ${statusText}</span>
-                            </div>
-                            ${result.url ? `<a href="${result.url}" target="_blank" class="result-url">${result.url}</a>` : ''}
-                            ${result.error ? `<div style="color: #dc3545; font-size: 14px;">エラー: ${result.error}</div>` : ''}
+                // Create table-style layout
+                const tableHTML = `
+                    <div class="results-table">
+                        <div class="table-header">
+                            <div class="col-keyword">メインキーワード</div>
+                            <div class="col-platform">知恵袋</div>
+                            <div class="col-platform">𝕏</div>
+                            <div class="col-platform">Insta</div>
+                            <div class="col-platform">FB</div>
                         </div>
-                    `;
-                }).join('');
+                        ${this.results.map(result => {
+                            if (result.platforms) {
+                                return `
+                                    <div class="table-row">
+                                        <div class="col-keyword">${this.escapeHtml(result.keyword)}</div>
+                                        <div class="col-platform">
+                                            ${result.platforms.chiebukuro.rank ? 
+                                                `<span class="rank-badge chiebukuro">${result.platforms.chiebukuro.rank}</span>` : 
+                                                '<span class="rank-empty">-</span>'
+                                            }
+                                        </div>
+                                        <div class="col-platform">
+                                            ${result.platforms.twitter.rank ? 
+                                                `<span class="rank-badge twitter">${result.platforms.twitter.rank}</span>` : 
+                                                '<span class="rank-empty">-</span>'
+                                            }
+                                        </div>
+                                        <div class="col-platform">
+                                            ${result.platforms.instagram.rank ? 
+                                                `<span class="rank-badge instagram">${result.platforms.instagram.rank}</span>` : 
+                                                '<span class="rank-empty">-</span>'
+                                            }
+                                        </div>
+                                        <div class="col-platform">
+                                            ${result.platforms.facebook.rank ? 
+                                                `<span class="rank-badge facebook">${result.platforms.facebook.rank}</span>` : 
+                                                '<span class="rank-empty">-</span>'
+                                            }
+                                        </div>
+                                    </div>
+                                `;
+                            } else {
+                                // Legacy format fallback
+                                return `
+                                    <div class="table-row">
+                                        <div class="col-keyword">${this.escapeHtml(result.keyword)}</div>
+                                        <div class="col-platform">
+                                            ${result.isTarget ? 
+                                                `<span class="rank-badge chiebukuro">${result.rank}</span>` : 
+                                                '<span class="rank-empty">-</span>'
+                                            }
+                                        </div>
+                                        <div class="col-platform"><span class="rank-empty">-</span></div>
+                                        <div class="col-platform"><span class="rank-empty">-</span></div>
+                                        <div class="col-platform"><span class="rank-empty">-</span></div>
+                                    </div>
+                                `;
+                            }
+                        }).join('')}
+                    </div>
+                `;
+                
+                this.resultsList.innerHTML = tableHTML;
             }
             
             updateUI(isChecking) {
