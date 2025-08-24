@@ -414,136 +414,16 @@
             border-right: none;
         }
 
-        /* Platform-specific rank badges */
-        .rank-badge.chiebukuro {
-            background: #ff6b35;
+        /* Base rank badge styles */
+        .rank-badge {
             color: white;
             padding: 3px 6px;
             border-radius: 8px;
             font-size: 10px;
             font-weight: 600;
             min-width: 20px;
-        }
-
-        .rank-badge.twitter {
-            background: #1da1f2;
-            color: white;
-            padding: 3px 6px;
-            border-radius: 8px;
-            font-size: 10px;
-            font-weight: 600;
-            min-width: 20px;
-        }
-
-        .rank-badge.instagram {
-            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
-            color: white;
-            padding: 3px 6px;
-            border-radius: 8px;
-            font-size: 10px;
-            font-weight: 600;
-            min-width: 20px;
-        }
-
-        .rank-badge.facebook {
-            background: #4267b2;
-            color: white;
-            padding: 3px 6px;
-            border-radius: 8px;
-            font-size: 10px;
-            font-weight: 600;
-            min-width: 20px;
-        }
-
-        /* Additional platform badges */
-        .rank-badge.okwave {
-            background: #00a0dc;
-            color: white;
-            padding: 3px 6px;
-            border-radius: 8px;
-            font-size: 10px;
-            font-weight: 600;
-            min-width: 20px;
-        }
-
-        .rank-badge.goo {
-            background: #0066cc;
-            color: white;
-            padding: 3px 6px;
-            border-radius: 8px;
-            font-size: 10px;
-            font-weight: 600;
-            min-width: 20px;
-        }
-
-        .rank-badge.komachi {
-            background: #e60012;
-            color: white;
-            padding: 3px 6px;
-            border-radius: 8px;
-            font-size: 10px;
-            font-weight: 600;
-            min-width: 20px;
-        }
-
-        .rank-badge.hatena {
-            background: #008fde;
-            color: white;
-            padding: 3px 6px;
-            border-radius: 8px;
-            font-size: 10px;
-            font-weight: 600;
-            min-width: 20px;
-        }
-
-        .rank-badge.ameba {
-            background: #00d4aa;
-            color: white;
-            padding: 3px 6px;
-            border-radius: 8px;
-            font-size: 10px;
-            font-weight: 600;
-            min-width: 20px;
-        }
-
-        .rank-badge.rakuten {
-            background: #bf0000;
-            color: white;
-            padding: 3px 6px;
-            border-radius: 8px;
-            font-size: 10px;
-            font-weight: 600;
-            min-width: 20px;
-        }
-
-        .rank-badge.note {
-            background: #41c9b4;
-            color: white;
-            padding: 3px 6px;
-            border-radius: 8px;
-            font-size: 10px;
-            font-weight: 600;
-            min-width: 20px;
-        }
-
-        .rank-badge.fc2 {
-            background: #94c11f;
-            color: white;
-            padding: 3px 6px;
-            border-radius: 8px;
-            font-size: 10px;
-            font-weight: 600;
-            min-width: 20px;
-        }
-
-        .rank-badge.tiktok {
-            background: #000;
-            color: white;
-            padding: 3px 6px;
-            border-radius: 8px;
-            font-size: 10px;
-            font-weight: 600;
-            min-width: 20px;
+            display: inline-block;
+            text-align: center;
         }
 
         .rank-empty {
@@ -761,15 +641,102 @@
     </div>
 
     <script>
+        // Platform configuration
+        const PLATFORM_CONFIG = {
+            qa: {
+                category: 'Q&A',
+                platforms: {
+                    chiebukuro: { 
+                        name: '知恵袋', 
+                        domains: ['detail.chiebukuro.yahoo.co.jp'],
+                        color: '#ff6b35'
+                    },
+                    okwave: { 
+                        name: 'OKWAVE', 
+                        domains: ['okwave.jp'],
+                        color: '#00a0dc'
+                    },
+                    oshiete_goo: { 
+                        name: '教えてgoo', 
+                        domains: ['oshiete.goo.ne.jp'],
+                        color: '#0066cc'
+                    },
+                    komachi: { 
+                        name: '発言小町', 
+                        domains: ['komachi.yomiuri.co.jp'],
+                        color: '#e60012'
+                    }
+                }
+            },
+            blog: {
+                category: 'ブログ',
+                platforms: {
+                    hatena_blog: { 
+                        name: 'はてな', 
+                        domains: ['hatenablog.com', 'hatena.ne.jp'],
+                        color: '#008fde'
+                    },
+                    ameba: { 
+                        name: 'アメブロ', 
+                        domains: ['ameblo.jp'],
+                        color: '#00d4aa'
+                    },
+                    rakuten_blog: { 
+                        name: '楽天', 
+                        domains: ['plaza.rakuten.co.jp'],
+                        color: '#bf0000'
+                    },
+                    note: { 
+                        name: 'note', 
+                        domains: ['note.com'],
+                        color: '#41c9b4'
+                    },
+                    fc2: { 
+                        name: 'FC2', 
+                        domains: ['fc2.com'],
+                        color: '#94c11f'
+                    }
+                }
+            },
+            sns: {
+                category: 'SNS',
+                platforms: {
+                    twitter: { 
+                        name: '𝕏', 
+                        domains: ['twitter.com', 'x.com'],
+                        color: '#1da1f2'
+                    },
+                    instagram: { 
+                        name: 'Insta', 
+                        domains: ['instagram.com'],
+                        color: 'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)'
+                    },
+                    facebook: { 
+                        name: 'FB', 
+                        domains: ['facebook.com'],
+                        color: '#4267b2'
+                    },
+                    tiktok: { 
+                        name: 'TikTok', 
+                        domains: ['tiktok.com'],
+                        color: '#000'
+                    }
+                }
+            }
+        };
+
         class ChiebukuroRankChecker {
             constructor() {
                 this.results = [];
                 this.isChecking = false;
                 this.quotaUsed = 0;
                 this.quotaLimit = 100;
+                this.logoutTimer = null;
+                this.platformConfig = PLATFORM_CONFIG;
                 this.initializeElements();
                 this.bindEvents();
                 this.loadQuotaFromStorage();
+                this.injectPlatformStyles();
             }
             
             initializeElements() {
@@ -949,33 +916,10 @@
                 
                 const items = data.items || [];
                 
-                // Initialize result object with all platforms
+                // Initialize result object with all platforms from config
                 const result = {
                     keyword,
-                    platforms: {
-                        // Q&A Sites
-                        chiebukuro: { rank: null, url: null, title: null },
-                        okwave: { rank: null, url: null, title: null },
-                        oshiete_goo: { rank: null, url: null, title: null },
-                        komachi: { rank: null, url: null, title: null },
-                        
-                        // Blog Platforms
-                        hatena_blog: { rank: null, url: null, title: null },
-                        ameba: { rank: null, url: null, title: null },
-                        rakuten_blog: { rank: null, url: null, title: null },
-                        note: { rank: null, url: null, title: null },
-                        fanblog: { rank: null, url: null, title: null },
-                        cocolog: { rank: null, url: null, title: null },
-                        tumblr: { rank: null, url: null, title: null },
-                        fc2: { rank: null, url: null, title: null },
-                        goo_blog: { rank: null, url: null, title: null },
-                        
-                        // SNS Platforms
-                        twitter: { rank: null, url: null, title: null },
-                        instagram: { rank: null, url: null, title: null },
-                        facebook: { rank: null, url: null, title: null },
-                        tiktok: { rank: null, url: null, title: null }
-                    }
+                    platforms: this.initializePlatforms()
                 };
                 
                 // Check each search result for different platforms
@@ -984,61 +928,13 @@
                     const rank = i + 1;
                     
                     if (item.link) {
-                        // Q&A Sites
-                        if (item.link.includes('detail.chiebukuro.yahoo.co.jp')) {
-                            result.platforms.chiebukuro = { rank: rank, url: item.link, title: item.title };
-                        }
-                        else if (item.link.includes('okwave.jp')) {
-                            result.platforms.okwave = { rank: rank, url: item.link, title: item.title };
-                        }
-                        else if (item.link.includes('oshiete.goo.ne.jp')) {
-                            result.platforms.oshiete_goo = { rank: rank, url: item.link, title: item.title };
-                        }
-                        else if (item.link.includes('komachi.yomiuri.co.jp')) {
-                            result.platforms.komachi = { rank: rank, url: item.link, title: item.title };
-                        }
-                        
-                        // Blog Platforms
-                        else if (item.link.includes('hatenablog.com') || item.link.includes('hatena.ne.jp')) {
-                            result.platforms.hatena_blog = { rank: rank, url: item.link, title: item.title };
-                        }
-                        else if (item.link.includes('ameblo.jp')) {
-                            result.platforms.ameba = { rank: rank, url: item.link, title: item.title };
-                        }
-                        else if (item.link.includes('plaza.rakuten.co.jp')) {
-                            result.platforms.rakuten_blog = { rank: rank, url: item.link, title: item.title };
-                        }
-                        else if (item.link.includes('note.com')) {
-                            result.platforms.note = { rank: rank, url: item.link, title: item.title };
-                        }
-                        else if (item.link.includes('fanblogs.jp')) {
-                            result.platforms.fanblog = { rank: rank, url: item.link, title: item.title };
-                        }
-                        else if (item.link.includes('cocolog-nifty.com')) {
-                            result.platforms.cocolog = { rank: rank, url: item.link, title: item.title };
-                        }
-                        else if (item.link.includes('tumblr.com')) {
-                            result.platforms.tumblr = { rank: rank, url: item.link, title: item.title };
-                        }
-                        else if (item.link.includes('fc2.com')) {
-                            result.platforms.fc2 = { rank: rank, url: item.link, title: item.title };
-                        }
-                        else if (item.link.includes('blog.goo.ne.jp')) {
-                            result.platforms.goo_blog = { rank: rank, url: item.link, title: item.title };
-                        }
-                        
-                        // SNS Platforms
-                        else if (item.link.includes('twitter.com') || item.link.includes('x.com')) {
-                            result.platforms.twitter = { rank: rank, url: item.link, title: item.title };
-                        }
-                        else if (item.link.includes('instagram.com')) {
-                            result.platforms.instagram = { rank: rank, url: item.link, title: item.title };
-                        }
-                        else if (item.link.includes('facebook.com')) {
-                            result.platforms.facebook = { rank: rank, url: item.link, title: item.title };
-                        }
-                        else if (item.link.includes('tiktok.com')) {
-                            result.platforms.tiktok = { rank: rank, url: item.link, title: item.title };
+                        const platformMatch = this.detectPlatform(item.link);
+                        if (platformMatch) {
+                            result.platforms[platformMatch] = { 
+                                rank: rank, 
+                                url: item.link, 
+                                title: item.title 
+                            };
                         }
                     }
                 }
@@ -1046,6 +942,53 @@
                 return result;
             }
             
+            // Helper method to initialize all platforms with empty data
+            initializePlatforms() {
+                const platforms = {};
+                Object.values(this.platformConfig).forEach(category => {
+                    Object.keys(category.platforms).forEach(platformKey => {
+                        platforms[platformKey] = { rank: null, url: null, title: null };
+                    });
+                });
+                return platforms;
+            }
+
+            // Helper method to detect platform from URL
+            detectPlatform(url) {
+                for (const category of Object.values(this.platformConfig)) {
+                    for (const [platformKey, platformData] of Object.entries(category.platforms)) {
+                        if (platformData.domains.some(domain => url.includes(domain))) {
+                            return platformKey;
+                        }
+                    }
+                }
+                return null;
+            }
+
+            // Helper method to get total platform count
+            getTotalPlatformCount() {
+                let count = 0;
+                Object.values(this.platformConfig).forEach(category => {
+                    count += Object.keys(category.platforms).length;
+                });
+                return count;
+            }
+
+            // Inject dynamic CSS styles for platform badges
+            injectPlatformStyles() {
+                const styleElement = document.createElement('style');
+                let css = '';
+                
+                Object.values(this.platformConfig).forEach(category => {
+                    Object.entries(category.platforms).forEach(([platformKey, platformData]) => {
+                        css += `.rank-badge.${platformKey} { background: ${platformData.color}; }\n`;
+                    });
+                });
+                
+                styleElement.textContent = css;
+                document.head.appendChild(styleElement);
+            }
+
             updateProgress(percentage) {
                 this.progressFill.style.width = `${percentage}%`;
             }
@@ -1053,7 +996,7 @@
             updateStats() {
                 const total = this.results.length;
                 let totalPlatformHits = 0;
-                const totalPlatforms = 17; // Total number of platforms we're checking
+                const totalPlatforms = this.getTotalPlatformCount();
                 
                 this.results.forEach(result => {
                     if (result.platforms) {
@@ -1077,97 +1020,112 @@
                 this.resultsContainer.style.display = 'block';
                 this.exportBtn.style.display = 'inline-flex';
                 
-                // Create table-style layout with all platforms
-                const tableHTML = `
+                const tableHTML = this.generateResultsTable();
+                this.resultsList.innerHTML = tableHTML;
+            }
+
+            // Generate the results table HTML using configuration
+            generateResultsTable() {
+                const headerHTML = this.generateTableHeader();
+                const subheaderHTML = this.generateTableSubheader();
+                const rowsHTML = this.results.map(result => this.generateTableRow(result)).join('');
+                
+                return `
                     <div class="results-table-container">
                         <div class="results-table">
-                            <div class="table-header">
-                                <div class="col-keyword">キーワード</div>
-                                <div class="col-category">Q&A</div>
-                                <div class="col-category">ブログ</div>
-                                <div class="col-category">SNS</div>
-                            </div>
-                            <div class="table-subheader">
-                                <div class="col-keyword"></div>
-                                <div class="col-platforms">
-                                    <div class="platform-cell">知恵袋</div>
-                                    <div class="platform-cell">OKWAVE</div>
-                                    <div class="platform-cell">教えてgoo</div>
-                                    <div class="platform-cell">発言小町</div>
-                                </div>
-                                <div class="col-platforms">
-                                    <div class="platform-cell">はてな</div>
-                                    <div class="platform-cell">アメブロ</div>
-                                    <div class="platform-cell">楽天</div>
-                                    <div class="platform-cell">note</div>
-                                    <div class="platform-cell">FC2</div>
-                                </div>
-                                <div class="col-platforms">
-                                    <div class="platform-cell">𝕏</div>
-                                    <div class="platform-cell">Insta</div>
-                                    <div class="platform-cell">FB</div>
-                                    <div class="platform-cell">TikTok</div>
-                                </div>
-                            </div>
-                            ${this.results.map(result => {
-                                if (result.platforms) {
-                                    return `
-                                        <div class="table-row">
-                                            <div class="col-keyword">${this.escapeHtml(result.keyword)}</div>
-                                            <div class="col-platforms">
-                                                <div class="platform-cell">${result.platforms.chiebukuro.rank ? `<span class="rank-badge chiebukuro">${result.platforms.chiebukuro.rank}</span>` : '<span class="rank-empty">-</span>'}</div>
-                                                <div class="platform-cell">${result.platforms.okwave.rank ? `<span class="rank-badge okwave">${result.platforms.okwave.rank}</span>` : '<span class="rank-empty">-</span>'}</div>
-                                                <div class="platform-cell">${result.platforms.oshiete_goo.rank ? `<span class="rank-badge goo">${result.platforms.oshiete_goo.rank}</span>` : '<span class="rank-empty">-</span>'}</div>
-                                                <div class="platform-cell">${result.platforms.komachi.rank ? `<span class="rank-badge komachi">${result.platforms.komachi.rank}</span>` : '<span class="rank-empty">-</span>'}</div>
-                                            </div>
-                                            <div class="col-platforms">
-                                                <div class="platform-cell">${result.platforms.hatena_blog.rank ? `<span class="rank-badge hatena">${result.platforms.hatena_blog.rank}</span>` : '<span class="rank-empty">-</span>'}</div>
-                                                <div class="platform-cell">${result.platforms.ameba.rank ? `<span class="rank-badge ameba">${result.platforms.ameba.rank}</span>` : '<span class="rank-empty">-</span>'}</div>
-                                                <div class="platform-cell">${result.platforms.rakuten_blog.rank ? `<span class="rank-badge rakuten">${result.platforms.rakuten_blog.rank}</span>` : '<span class="rank-empty">-</span>'}</div>
-                                                <div class="platform-cell">${result.platforms.note.rank ? `<span class="rank-badge note">${result.platforms.note.rank}</span>` : '<span class="rank-empty">-</span>'}</div>
-                                                <div class="platform-cell">${result.platforms.fc2.rank ? `<span class="rank-badge fc2">${result.platforms.fc2.rank}</span>` : '<span class="rank-empty">-</span>'}</div>
-                                            </div>
-                                            <div class="col-platforms">
-                                                <div class="platform-cell">${result.platforms.twitter.rank ? `<span class="rank-badge twitter">${result.platforms.twitter.rank}</span>` : '<span class="rank-empty">-</span>'}</div>
-                                                <div class="platform-cell">${result.platforms.instagram.rank ? `<span class="rank-badge instagram">${result.platforms.instagram.rank}</span>` : '<span class="rank-empty">-</span>'}</div>
-                                                <div class="platform-cell">${result.platforms.facebook.rank ? `<span class="rank-badge facebook">${result.platforms.facebook.rank}</span>` : '<span class="rank-empty">-</span>'}</div>
-                                                <div class="platform-cell">${result.platforms.tiktok.rank ? `<span class="rank-badge tiktok">${result.platforms.tiktok.rank}</span>` : '<span class="rank-empty">-</span>'}</div>
-                                            </div>
-                                        </div>
-                                    `;
-                                } else {
-                                    // Legacy format fallback
-                                    return `
-                                        <div class="table-row">
-                                            <div class="col-keyword">${this.escapeHtml(result.keyword)}</div>
-                                            <div class="col-platforms">
-                                                <div class="platform-cell">${result.isTarget ? `<span class="rank-badge chiebukuro">${result.rank}</span>` : '<span class="rank-empty">-</span>'}</div>
-                                                <div class="platform-cell"><span class="rank-empty">-</span></div>
-                                                <div class="platform-cell"><span class="rank-empty">-</span></div>
-                                                <div class="platform-cell"><span class="rank-empty">-</span></div>
-                                            </div>
-                                            <div class="col-platforms">
-                                                <div class="platform-cell"><span class="rank-empty">-</span></div>
-                                                <div class="platform-cell"><span class="rank-empty">-</span></div>
-                                                <div class="platform-cell"><span class="rank-empty">-</span></div>
-                                                <div class="platform-cell"><span class="rank-empty">-</span></div>
-                                                <div class="platform-cell"><span class="rank-empty">-</span></div>
-                                            </div>
-                                            <div class="col-platforms">
-                                                <div class="platform-cell"><span class="rank-empty">-</span></div>
-                                                <div class="platform-cell"><span class="rank-empty">-</span></div>
-                                                <div class="platform-cell"><span class="rank-empty">-</span></div>
-                                                <div class="platform-cell"><span class="rank-empty">-</span></div>
-                                            </div>
-                                        </div>
-                                    `;
-                                }
-                            }).join('')}
+                            ${headerHTML}
+                            ${subheaderHTML}
+                            ${rowsHTML}
                         </div>
                     </div>
                 `;
+            }
+
+            // Generate table header
+            generateTableHeader() {
+                const categories = Object.values(this.platformConfig).map(category => 
+                    `<div class="col-category">${category.category}</div>`
+                ).join('');
                 
-                this.resultsList.innerHTML = tableHTML;
+                return `
+                    <div class="table-header">
+                        <div class="col-keyword">キーワード</div>
+                        ${categories}
+                    </div>
+                `;
+            }
+
+            // Generate table subheader with platform names
+            generateTableSubheader() {
+                const platformGroups = Object.values(this.platformConfig).map(category => {
+                    const platforms = Object.values(category.platforms).map(platform => 
+                        `<div class="platform-cell">${platform.name}</div>`
+                    ).join('');
+                    return `<div class="col-platforms">${platforms}</div>`;
+                }).join('');
+                
+                return `
+                    <div class="table-subheader">
+                        <div class="col-keyword"></div>
+                        ${platformGroups}
+                    </div>
+                `;
+            }
+
+            // Generate individual table row
+            generateTableRow(result) {
+                if (!result.platforms) {
+                    return this.generateLegacyTableRow(result);
+                }
+
+                const platformGroups = Object.values(this.platformConfig).map(category => {
+                    const cells = Object.keys(category.platforms).map(platformKey => {
+                        const platform = result.platforms[platformKey];
+                        const badge = platform.rank ? 
+                            `<span class="rank-badge ${platformKey}">${platform.rank}</span>` : 
+                            '<span class="rank-empty">-</span>';
+                        return `<div class="platform-cell">${badge}</div>`;
+                    }).join('');
+                    return `<div class="col-platforms">${cells}</div>`;
+                }).join('');
+
+                return `
+                    <div class="table-row">
+                        <div class="col-keyword">${this.escapeHtml(result.keyword)}</div>
+                        ${platformGroups}
+                    </div>
+                `;
+            }
+
+            // Generate legacy format row for backward compatibility
+            generateLegacyTableRow(result) {
+                const emptyGroups = Object.values(this.platformConfig).map(category => {
+                    const emptyCells = Object.keys(category.platforms).map(() => 
+                        '<div class="platform-cell"><span class="rank-empty">-</span></div>'
+                    ).join('');
+                    return `<div class="col-platforms">${emptyCells}</div>`;
+                }).join('');
+
+                // Show legacy result in first platform if it's a target
+                const firstGroupCells = Object.keys(this.platformConfig.qa.platforms).map((platformKey, index) => {
+                    if (index === 0 && result.isTarget) {
+                        return `<div class="platform-cell"><span class="rank-badge chiebukuro">${result.rank}</span></div>`;
+                    }
+                    return '<div class="platform-cell"><span class="rank-empty">-</span></div>';
+                }).join('');
+
+                return `
+                    <div class="table-row">
+                        <div class="col-keyword">${this.escapeHtml(result.keyword)}</div>
+                        <div class="col-platforms">${firstGroupCells}</div>
+                        ${Object.values(this.platformConfig).slice(1).map(category => {
+                            const emptyCells = Object.keys(category.platforms).map(() => 
+                                '<div class="platform-cell"><span class="rank-empty">-</span></div>'
+                            ).join('');
+                            return `<div class="col-platforms">${emptyCells}</div>`;
+                        }).join('')}
+                    </div>
+                `;
             }
             
             updateUI(isChecking) {
